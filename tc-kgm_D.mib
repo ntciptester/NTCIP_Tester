@@ -1,0 +1,1035 @@
+--Karayollari NTCIP Protokolu
+--****************************************************************************
+--NTCIP OBJECTS
+
+TC-KGM-NTCIP DEFINITIONS ::= BEGIN
+    --NTCIP 8004 v02 Header
+    --
+    --For the purpose of this section, the following OBJECT IDENTIFIERS are used:
+    IMPORTS
+	--NTCIP 1201 ve 1202 eklenmeli @TODO
+    OBJECT-TYPE
+        FROM RFC1212-MIB
+    Counter, null, enterprises
+        FROM RFC1155-SMI;
+
+    kgm                                OBJECT IDENTIFIER ::= { enterprises 59873 }
+    kgmTransportation                  OBJECT IDENTIFIER ::= { kgm 4 }
+    kgmDevices                         OBJECT IDENTIFIER ::= { kgmTransportation 2 }
+    kgmAsc                             OBJECT IDENTIFIER ::= { kgmDevices 1 }
+
+    kgmModuleErrorStatus               OBJECT IDENTIFIER ::= { kgmAsc 1 }
+    kgmChannel                         OBJECT IDENTIFIER ::= { kgmAsc 2 }
+    kgmSignalState                     OBJECT IDENTIFIER ::= { kgmAsc 3 }
+    kgmTrPattern                       OBJECT IDENTIFIER ::= { kgmAsc 4 }
+    kgmDetector                        OBJECT IDENTIFIER ::= { kgmAsc 5 }
+    kgmUser                            OBJECT IDENTIFIER ::= { kgmAsc 6 }
+
+--1.1 kgm_moduleErrorStatus
+--1.1.1 kgm_maxDriverModuleGroupStatus
+    kgmMaxDriverModuleGroupStatus OBJECT-TYPE 
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Maksimum surucu modul grup durum sayisi.  
+                            kgm_trafficLightFaultIndex maksimum degerini asamaz. 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.1.1
+                            <Antra Protocol> ANTRA:-REQ:NMES,-NMES:08,03"
+        ::= { kgmModuleErrorStatus 1}
+--1.1.2 kgm_driverModuleGroupStatus
+    kgmDriverModuleGroupStatus OBJECT-TYPE
+        SYNTAX              INTEGER (0..65535)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Surucu modulu durum bilgisi yer alir.
+		                    Modul grup numarasina gore 16 modul bilgisini icerir.
+                            Bit = 0 ise modul calismiyor.
+                            Bit = 1 ise modul calisiyor.
+                            Bit 15: Module 16
+                            Bit 14: Module 15
+                            Bit 13: Module 14
+                            Bit 12: Module 13
+                            Bit 11: Module 12
+                            Bit 10: Module 11
+                            Bit 9 : Module 10
+                            Bit 8 : Module 9
+                            Bit 7 : Module 8 
+                            Bit 6 : Module 7 
+                            Bit 5 : Module 6 
+                            Bit 4 : Module 5 
+                            Bit 3 : Module 4 
+                            Bit 2 : Module 3 
+                            Bit 1 : Module 2 
+                            Bit 0 : Module 1
+                            <Object Identifier>1.3.6.1.4.1.59873.4.2.1.1.2
+                            <Antra Protocol> ANTRA:-REQ:NMES,-NMES:08,03"
+        ::= { kgmModuleErrorStatus 2 }
+
+--1.2 kgm_channel
+--1.2.1 kgm_maxTrafficLightFaultStatusGroups
+    kgmMaxTrafficLightFaultStatusGroups OBJECT-TYPE 
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Maksimum kanal ariza durum sayisi. 
+                            kgm_trafficLightFaultIndex maksimum degerini alamaz.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.1
+                            <Antra Protocol> ANTRA:-REQ:NCHA,-NCHA:08,03"
+        ::= { kgmChannel 1}
+--1.2.2 kgm_trafficLightFaultStatusTable
+    kgmTrafficLightFaultStatusTable OBJECT-TYPE
+        SYNTAX              SEQUENCE OF kgmTrafficLightFaultStatusEntry 
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Lamba grubunun ariza durum tablosu
+                            <TableType> static
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.2"
+        ::= { kgmChannel 2 }
+--1.2.2.1 kgm_trafficLightFaultStatusEntry
+    kgmTrafficLightFaultStatusEntry OBJECT-TYPE 
+        SYNTAX              kgmTrafficLightFaultStatusEntry 
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Lamba grubunun ariza durum entry'si
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.2.1
+                            <Unit> "
+        INDEX               { kgmTrafficLightFaultIndex }
+        ::= {  kgmTrafficLightFaultStatusTable 1 }
+
+    kgmTrafficLightFaultStatusEntry ::= SEQUENCE { 
+        kgmTrafficLightFaultIndex          INTEGER, 
+        kgmTrafficLightFaultChannelNumber  INTEGER, 
+        kgmTrafficLightFaultGreenStatus    INTEGER, 
+        kgmTrafficLightFaultYellowStatus   INTEGER, 
+        kgmTrafficLightFaultRedStatus      INTEGER
+    }
+--1.2.2.1.1 kgm_trafficLightFaultIndex
+    kgmTrafficLightFaultIndex OBJECT-TYPE
+        SYNTAX              INTEGER (1..255) 
+        ACCESS              read-only
+        STATUS              mandatory 
+        DESCRIPTION         "<Definition> Ariza tablosu id bilgisi
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.2.1.1 
+                            <Unit> "
+        ::= { kgmTrafficLightFaultStatusEntry 1 }
+--1.2.2.1.2 kgm_trafficLightFaultChannelNumber
+    kgmTrafficLightFaultChannelNumber OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Kanal tablosundaki channelNumber (grup numarasi) bilgisini icerir.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.2.1.2
+                            <Unit>"
+        ::= { kgmTrafficLightFaultStatusEntry 2 }
+--1.2.2.1.3 kgm_trafficLightFaultGreenStatus
+    kgmTrafficLightFaultGreenStatus OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            1 Byte
+                            0: ariza yok
+                            Bit 1: Lamba arizasi(Kritik olmayan)
+                            Bit 2: Kritik lamba arizasi
+                            Bit 3: Tum lamba arizasi
+                            Bit 4: Cakisma var
+                            Bit 5: Kisa devre arizasi (Sinyal cikis anahtari kisa devre / sinyal grup cikisi kisa devre veya haricen kablo kisa devresi)
+                            Bit 6: Sinyal cikis anahtari acik devre / sinyal grup cikisi acik devre
+                            Bit 7: Rez.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.2.1.3
+                            <Unit>"
+        ::= { kgmTrafficLightFaultStatusEntry 3 }
+--1.2.2.1.4 kgm_trafficLightFaultYellowStatus
+    kgmTrafficLightFaultYellowStatus OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            1 Byte
+                            Bit 0: ariza yok
+                            Bit 1: Lamba arizasi(Kritik olmayan)
+                            Bit 2: Kritik lamba arizasi
+                            Bit 3: Tum lamba arizasi
+                            Bit 4: Cakisma var
+                            Bit 5: Kisa devre arizasi (Sinyal cikis anahtari kisa devre / sinyal grup cikisi kisa devre veya haricen kablo kisa devresi)
+                            Bit 6: Sinyal cikis anahtari acik devre / sinyal grup cikisi acik devre
+                            Bit 7: Rez.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.2.1.4
+                            <Unit>"
+        ::= { kgmTrafficLightFaultStatusEntry 4 }
+--1.2.2.1.5 kgm_trafficLightFaultRedStatus
+    kgmTrafficLightFaultRedStatus OBJECT-TYPE
+        SYNTAX 				INTEGER (0..255)
+        ACCESS 				read-only
+        STATUS 				mandatory
+        DESCRIPTION         "<Definition>
+                            1 Byte
+                            Bit 0: ariza yok
+                            Bit 1: Lamba arizasi(Kritik olmayan)
+                            Bit 2: Kritik lamba arizasi
+                            Bit 3: Tum lamba arizasi
+                            Bit 4: Cakisma var
+                            Bit 5: Kisa devre arizasi (Sinyal cikis anahtari kisa devre / sinyal grup cikisi kisa devre veya haricen kablo kisa devresi)
+                            Bit 6: Sinyal cikis anahtari acik devre / sinyal grup cikisi acik devre
+                            Bit 7: Rez.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.2.1.5
+                            <Unit>"
+        ::= { kgmTrafficLightFaultStatusEntry 5 }
+--1.2.3 kgm_maxChannelErrorFlagsGroups
+    kgmMaxChannelErrorFlagsGroups OBJECT-TYPE
+        SYNTAX 				INTEGER (0..255)
+        ACCESS 				read-only
+        STATUS 				mandatory
+        DESCRIPTION         "<Definition>
+                            Maksimum kanal ariza durum sayisi. kgm_trafficLightFaultIndex maksimum degerini alamaz.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.3"
+        ::= { kgmChannel 3 }
+--1.2.4 kgm_channelErrorFlagsTable
+    kgmChannelErrorFlagsTable OBJECT-TYPE
+        SYNTAX 				SEQUENCE OF kgmChannelErrorFlagsEntry
+        ACCESS 				not-accessible
+        STATUS 				mandatory
+        DESCRIPTION         "<Definition> Kanal hata durum bayraklari grup tablosu. 
+                            Tabloda ki her bir satir 8li gruplar halinde ifade edilebilecek sekilde organize edilmistir.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4
+                            <Unit> group"
+        ::= { kgmChannel 4 }
+--1.2.4.1 kgm_channelErrorFlagsEntry
+    kgmChannelErrorFlagsEntry OBJECT-TYPE
+        SYNTAX 				kgmChannelErrorFlagsEntry
+        ACCESS 				not-accessible
+        STATUS 				mandatory     
+        DESCRIPTION         "<Definition> 8li gruplar halinde kanal hata durum bayraklari.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4.1 "
+        INDEX				{ kgmErrorFlagsGroupNumber }
+        ::= { kgmChannelErrorFlagsTable 1 }
+
+    kgmChannelErrorFlagsEntry ::= SEQUENCE {
+        kgmErrorFlagsGroupNumber   INTEGER,
+        kgmRedLampAllFailure       INTEGER,
+        kgmGreenLampAllFailure     INTEGER,
+        kgmYellowLampAllFailure    INTEGER,
+        kgmUndesiredRedSignal      INTEGER,
+        kgmUndesiredGreenSignal    INTEGER,
+        kgmUndesiredYellowSignal   INTEGER
+    }
+--1.2.4.1.1 kgm_errorFlagsGroupNumber
+    kgmErrorFlagsGroupNumber OBJECT-TYPE 
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Ilgili tablo satirinda ki Kanal hata bayraklari grup numarasi.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4.1.1
+                            <Unit>"
+        ::= { kgmChannelErrorFlagsEntry 1 }
+--1.2.4.1.2 kgm_redLampAllFailure
+    kgmRedLampAllFailure OBJECT-TYPE 
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            Kanal Kirmizi ariza durumlari
+                            Bit=1 ise ilgili kanal kopuk flaman arizasi var.
+                            Bit=0 ise ilgili kanal arizasi yok.
+                            Bit 7: Channel# = (errorgroupNumber * 8) 
+                            Bit 6: Channel# = (errorgroupNumber * 8) - 1 
+                            Bit 5: Channel# = (errorgroupNumber * 8) - 2 
+                            Bit 4: Channel# = (errorgroupNumber * 8) - 3 
+                            Bit 3: Channel# = (errorgroupNumber * 8) - 4 
+                            Bit 2: Channel# = (errorgroupNumber * 8) - 5 
+                            Bit 1: Channel# = (errorgroupNumber * 8) - 6 
+                            Bit 0: Channel# = (errorgroupNumber * 8) - 7
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4.1.2
+                            <Unit>"
+        ::= { kgmChannelErrorFlagsEntry 2 }
+--1.2.4.1.3 kgm_greenLampAllFailure
+    kgmGreenLampAllFailure OBJECT-TYPE 
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            Kanal Yesil ariza durumlari
+                            Bit=1 ise ilgili kanal kopuk flaman arizasi var.
+                            Bit=0 ise ilgili kanal arizasi yok.
+                            Bit 7: Channel# = (errorgroupNumber * 8)
+                            Bit 6: Channel# = (errorgroupNumber * 8) - 1
+                            Bit 5: Channel# = (errorgroupNumber * 8) - 2
+                            Bit 4: Channel# = (errorgroupNumber * 8) - 3
+                            Bit 3: Channel# = (errorgroupNumber * 8) - 4
+                            Bit 2: Channel# = (errorgroupNumber * 8) - 5
+                            Bit 1: Channel# = (errorgroupNumber * 8) - 6 
+                            Bit 0: Channel# = (errorgroupNumber * 8) - 7
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4.1.3
+                            <Unit>  "
+        ::= { kgmChannelErrorFlagsEntry 3 }
+--1.2.4.1.4 kgm_yellowLampAllFailure
+    kgmYellowLampAllFailure OBJECT-TYPE 
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            Kanal Sari ariza durumlari
+                            Bit=1 ise ilgili kanalda kopuk flaman arizasi var. 
+                            Bit=0 ise ilgili kanal arizasi yok.
+                            Bit 7: Channel# = (errorgroupNumber * 8) 
+                            Bit 6: Channel# = (errorgroupNumber * 8) - 1
+                            Bit 5: Channel# = (errorgroupNumber * 8) - 2
+                            Bit 4: Channel# = (errorgroupNumber * 8) - 3
+                            Bit 3: Channel# = (errorgroupNumber * 8) - 4
+                            Bit 2: Channel# = (errorgroupNumber * 8) - 5
+                            Bit 1: Channel# = (errorgroupNumber * 8) - 6
+                            Bit 0: Channel# = (errorgroupNumber * 8) - 7
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4.1.4
+                            <Unit>  "
+        ::= { kgmChannelErrorFlagsEntry 4 }
+--1.2.4.1.5 kgm_undesiredRedSignal
+    kgmUndesiredRedSignal OBJECT-TYPE 
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            Kanal Istemsiz Kirmizi sinyal durumlari
+                            Bit=1 ise ilgili kanalda kopuk flaman arizasi var. 
+                            Bit=0 ise ilgili kanal arizasi yok.
+                            Bit 7: Channel# = (errorgroupNumber * 8) 
+                            Bit 6: Channel# = (errorgroupNumber * 8) - 1
+                            Bit 5: Channel# = (errorgroupNumber * 8) - 2
+                            Bit 4: Channel# = (errorgroupNumber * 8) - 3
+                            Bit 3: Channel# = (errorgroupNumber * 8) - 4
+                            Bit 2: Channel# = (errorgroupNumber * 8) - 5
+                            Bit 1: Channel# = (errorgroupNumber * 8) - 6
+                            Bit 0: Channel# = (errorgroupNumber * 8) - 7
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4.1.5
+                            <Unit>  "
+        ::= { kgmChannelErrorFlagsEntry 5 }
+--1.2.4.1.6 kgm_undesiredGreenSignal
+    kgmUndesiredGreenSignal OBJECT-TYPE 
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            Kanal Istemsiz yesil sinyal durumlari
+                            Bit=1 ise ilgili kanalda istemsiz sinyal vardir.
+                            Bit=0 ise ilgili kanalda istemsiz sinyal yoktur.
+                            Bit 7: Channel# = (errorgroupNumber * 8)
+                            Bit 6: Channel# = (errorgroupNumber * 8) - 1
+                            Bit 5: Channel# = (errorgroupNumber * 8) - 2
+                            Bit 4: Channel# = (errorgroupNumber * 8) - 3
+                            Bit 3: Channel# = (errorgroupNumber * 8) - 4
+                            Bit 2: Channel# = (errorgroupNumber * 8) - 5
+                            Bit 1: Channel# = (errorgroupNumber * 8) - 6
+                            Bit 0: Channel# = (errorgroupNumber * 8) - 7
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4.1.6
+                            <Unit>  "
+        ::= { kgmChannelErrorFlagsEntry 6 }
+--1.2.4.1.7 kgm_undesiredYellowSignal
+    kgmUndesiredYellowSignal  OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> 
+                            Kanal Istemsiz sari sinyal durumlari
+                            Bit=1 ise ilgili kanalda istemsiz sinyal vardir.
+                            Bit=0 ise ilgili kanalda istemsiz sinyal yoktur.
+                            Bit 7: Channel# = (errorgroupNumber * 8)
+                            Bit 6: Channel# = (errorgroupNumber * 8) - 1
+                            Bit 5: Channel# = (errorgroupNumber * 8) - 2
+                            Bit 4: Channel# = (errorgroupNumber * 8) - 3
+                            Bit 3: Channel# = (errorgroupNumber * 8) - 4
+                            Bit 2: Channel# = (errorgroupNumber * 8) - 5
+                            Bit 1: Channel# = (errorgroupNumber * 8) - 6
+                            Bit 0: Channel# = (errorgroupNumber * 8) - 7
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.2.4.1.7
+                            <Unit>  "
+        ::= { kgmChannelErrorFlagsEntry 7 }
+
+--1.3 kgm_signalState
+--1.3.1 kgm_maxSignalState
+    kgmMaxSignalState OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> 
+                            Maksimum sinyal durum sayisina esittir. kgm_signalStateIndex maksimum degerini asamaz
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.1"
+        ::= { kgmSignalState 1 }
+--1.3.2 kgm_signalStateTable
+    kgmSignalStateTable OBJECT-TYPE
+        SYNTAX              SEQUENCE OF kgmSignalStateEntry
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Sinyal durum tablosu 
+                            <TableType> static
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2"
+        ::= { kgmSignalState 2 }
+--1.3.2.1 kgm_signalStateEntry
+    kgmSignalStateEntry OBJECT-TYPE
+        SYNTAX              kgmSignalStateEntry
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Sinyal durum tablo Entry?si   
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1
+                            <Unit> " 
+        INDEX               { kgmSignalStateIndex }
+        ::= {  kgmSignalStateTable 1 }
+
+    kgmSignalStateEntry ::= SEQUENCE {
+        kgmSignalStateIndex                INTEGER,
+        kgmSignalStatePatternNo            INTEGER,
+        kgmSignalStateExecMode	            INTEGER,
+        kgmSignalStatePlanMode	            INTEGER,
+        kgmSignalStateStructure            INTEGER,
+        kgmSignalStatePlan                 INTEGER,
+        kgmSignalStatePhase                OCTET STRING,
+        kgmSignalStateNextPhase	        OCTET STRING,
+        kgmSignalStateStep	                INTEGER,
+        kgmSignalStateTransitionFlag	    INTEGER,
+        kgmSignalStateTransitionStep	    INTEGER,
+        kgmSignalStateElapsedTime          OCTET STRING,
+        kgmSignalStateRemainingTime	    OCTET STRING,
+        kgmSignalStateStepTime	            INTEGER,
+        kgmSignalStateCycleTime	        INTEGER,
+        kgmSatternTimeToNextCycle          INTEGER,
+        kgmSignalPlanLastChangeTime        Counter 
+    } 
+--1.3.2.1.1 kgm_signalStateIndex
+    kgmSignalStateIndex OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Sinyal durum tablosu 
+                            id bilgisi
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.1
+                            <Unit>  "
+        ::= { kgmSignalStateEntry 1 }
+--1.3.2.1.2 kgm_signalStatePatternNo
+    kgmSignalStatePatternNo OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Sinyal durum tablosu 
+                            patern numara bilgisi. 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.2
+                            <Unit>  "
+        ::= { kgmSignalStateEntry 2 } 
+--1.3.2.1.3 kgm_signalStateExecMode
+    kgmSignalStateExecMode OBJECT-TYPE
+        SYNTAX              INTEGER {
+                                none (0),
+                                init(1),
+                                initialFlash(2),
+                                program(3),
+                                flash(4),
+                                failFlash(5),
+                                allYellow(6),
+                                allRed(7),
+                                allDark(8),
+                                testOutputs(9),
+                                programError(10),
+                                testSignalPlan(11) 
+                            } 
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Hangi modda oldugu bilgisini icerir.
+                            Cihaz program modunda ise detayda hangi modda calistigi bilgisi kgm_signalStatePlanMode nesnesinden okunur.
+                            None (0)
+                            Init(1): Cihaz yeni acildi henuz cikislari surmeye baslamadi
+                            InitialFlash(2): Cihaz yeni acilmis veya yapi degisikligi olmus ve baslangic flasi yapiyor.
+                            Program(3): Cihaz haftalik plandaki duzene gore calisiyor.
+                            Flash(4): Cihaz flas moduna zorlanmis
+                            FailFlash(5): Cihaz arizi bir durumdan dolayi flas moduna gecmis
+                            AllYellow(6): Tum cikislar sari
+                            AllRed(7): Tum cikislar kirmizi
+                            AllDark(8): Tum cikislar sonuk
+                            TestOutputs(9): cikislarin lambalara dogru bir sekilde baglanip baglanmadigini kontrol 
+                                etmek icin sira ile her bir cikisa yesil, sari, kirmizi, kirmizi sari renklerinin verilmesidir.
+                            ProgramError(10): Sinyal programcisi tarafindan yuklenen sinyal planinda bir hata olmasi durumunda gecilen mod.
+                            TestSignalPlan(11): Bu modda sinyal cikislari kapalidir. Diger her sey program modunda calismaktadir. 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.3
+                            <Unit>  "
+        ::= { kgmSignalStateEntry 3 }
+--1.3.2.1.4 kgm_signalStatePlanMode
+    kgmSignalStatePlanMode OBJECT-TYPE
+        SYNTAX              INTEGER {
+                                fixedPlan(0),
+                                halfActuated(1),
+                                fullyActuated(2),
+                                centralAdaptive(3),
+                                flashing(4),
+                                dark(5),
+                                localAdaptive(6),
+                            }
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> 
+                            FixedPlan(0): Multi Plan(sabit sureli), sensorler devre disidir. 
+                                Faz sureleri haftalik planda belirlenen surelere gore degismektedir.
+                            HalfActuated(1): Kavsagin bazi kollarinda sensor bulunmakta(loop dedektor, 
+                                yaya butonu vb.) bazi kollarinda ise sensor bulunmayabilmektedir. Sinyal planindaki bazi 
+                                fazlar istenirse pas gecilebilmektedir.
+                            FullyActuated(2): Kavsagin butun kollarinda sensor bulunmaktadir. Sinyal planindaki butun fazlar acilmakta ve talep olmasi durumunda max sureye kadar calistirilmaktadir.
+                            CentralAdaptive(3): Bu modda plan sureleri merkezi bir program tarafindan uretilmekte ve cihaz tarafindan uygulanmaktadir.
+                            Flashing(4): Flasli calisma(Gece flasi gibi)
+                            Dark(5): Cikislarin kapali oldugu mod(Sadece belli saatlerde isletilen kavsaklarin olmasi durumu)
+                            LocalAdaptive(6): Bu modda plan sureleri lokalde cihaz tarafindan uretilmekte ve uygulanmaktadir.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.4
+                            <Unit>  "
+        ::= { kgmSignalStateEntry 4 }
+--1.3.2.1.5 kgm_signalStateStructure
+    kgmSignalStateStructure OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Calismakta olan yapi numarasi.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.5
+                            <Unit>  "
+        ::= { kgmSignalStateEntry 5 }
+--1.3.2.1.6 kgm_signalStatePlan
+    kgmSignalStatePlan OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Calismakta olan plan numarasi.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.6
+                            <Unit>  "
+        ::= { kgmSignalStateEntry 6 }
+--1.3.2.1.7 kgm_signalStatePhase
+    kgmSignalStatePhase OBJECT-TYPE
+        SYNTAX              OCTET STRING
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>  
+                            Turkiyedeki faza karsiliktir.
+                            Calismakta olan faz veya fazlar.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.7
+                            <Unit>  phase"
+        ::= { kgmSignalStateEntry 7 }
+--1.3.2.1.8 kgm_signalStateIndex
+    kgmSignalStateNextPhase OBJECT-TYPE
+        SYNTAX              OCTET STRING
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>   
+                            Bir sonraki fazi veya fazlari ifade eder.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.8
+                            <Unit>  phase"
+    ::= { kgmSignalStateEntry 8 }
+--1.3.2.1.9 kgm_signalStateStep
+    kgmSignalStateStep OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Calismakta olan adim
+                            0 yada 255  = Uygulanamaz
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.9 
+                            <Unit> step "
+    ::= { kgmSignalStateEntry 9 }
+--1.3.2.1.10 kgm_signalStateTransitionFlag
+    kgmSignalStateTransitionFlag OBJECT-TYPE
+        SYNTAX              INTEGER (0..1)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Calismakta olan adimin gecis adimi olup olmadigi bilgisini icerir.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.10
+                            <Unit>  flag"
+        ::= { kgmSignalStateEntry 10 }
+--1.3.2.1.11 kgm_signalStateTransitionStep
+    kgmSignalStateTransitionStep OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Gecis adimi numarasi
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.11
+                            <Unit>  step"
+        ::= { kgmSignalStateEntry 11 }
+--1.3.2.1.12 kgm_signalStateElapsedTime
+    kgmSignalStateElapsedTime OBJECT-TYPE
+        SYNTAX              OCTET STRING
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Mevcut adim veya adimlarin basladigi andan itibaren gecen sure 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.12 
+                            <Unit>  second"
+        ::= { kgmSignalStateEntry 12 }
+--1.3.2.1.13 kgm_signalStateRemainingTime
+    kgmSignalStateRemainingTime OBJECT-TYPE
+        SYNTAX              OCTET STRING
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Mevcut adim veya adimlarin kalan suresi 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.13
+                            <Unit>  second"
+        ::= { kgmSignalStateEntry 13 }
+--1.3.2.1.14 kgm_signalStateStepTime
+    kgmSignalStateStepTime OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Adimin toplam suresi
+                            0 yada 255  = Uygulanamaz
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.14
+                            <Unit> second"
+        ::= { kgmSignalStateEntry 14 }
+--1.3.2.1.15 kgm_signalStateCycleTime
+    kgmSignalStateCycleTime OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>  
+                            Devre suresi
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.15
+                            <Unit>  second"
+        ::= { kgmSignalStateEntry 15 }
+--1.3.2.1.16 kgm_patternTimeToNextCycle
+    kgmPatternTimeToNextCycle OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Yesil dalga durumunda sonraki peryodun baslangicina kalan sure(sn).
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.2.1.16
+                            <Unit> second"
+        ::= { kgmSignalStateEntry 16 }
+--1.3.3 kgm_signalPlanLastChangeTime
+    kgmSignalPlanLastChangeTime OBJECT-TYPE
+        SYNTAX              Counter (0..4294967295)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Sinyal planinin son degistirildigi zaman bilgisi 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.3.3
+                            <Unit> second"
+        ::= {  kgmSignalState 3 }
+--1.4 kgm_Coord
+--1.4.1 kgm_maxTrPattern
+    kgmMaxTrPattern OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Maksimum pattern sayisina esittir. kgm_patternIndex maksimum degerini asamaz
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.1"
+        ::= { kgmTrPattern 1 }
+--1.4.2 kgm_trPatternTable
+    kgmTrPatternTable	OBJECT-TYPE
+        SYNTAX              SEQUENCE OF kgmTrPatternEntry
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition><TableType> static
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2"
+        ::= { kgmTrPattern 2 }
+--1.4.2.1 kgm_trPatternEntry
+    kgmTrPatternEntry OBJECT-TYPE
+        SYNTAX              kgmTrPatternEntry
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1
+                            <Unit> "
+        INDEX {kgmSubJunctionNumber, kgmPatternNo }
+        ::= {  kgmTrPatternTable 1 }
+
+    kgmTrPatternEntry::= SEQUENCE {
+        kgmSubJunctionNumber               		INTEGER,
+        kgmPatternPriority                    		INTEGER,
+        kgmPatternNo	               				INTEGER,
+        kgmPatternPlanMode                 		INTEGER,
+        kgmPatternExtendedMode                		INTEGER,
+		kgmPatternSequenceNumber 					INTEGER,
+        kgmPatternSplitNumber                    	INTEGER,
+        kgmPatternCoordStatus                   	INTEGER,  
+        kgmPatternOutputSupervision                INTEGER,
+        kgmPatternSpecialParameterTableIndex       INTEGER,
+        
+    }
+--1.4.2.1.1 kgm_subJunctionNumber
+    kgmSubJunctionNumber OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Sinyal programlama tablo id bilgisi
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.1
+                            <Unit>  "
+        ::= { kgmTrPatternEntry 1 }
+--1.4.2.1.2 kgm_patternPriority
+    kgmPatternPriority OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Patternin öncelik seviyesini belirtir. Planlardan tetiklenebilecek farklı aksiyonların çakışması durumunda karar öncelik parametresine dayalı olarak verilecektir. Düşük değer düşük önceliği temsil eder. 
+											0: Öncelik atanmamış
+											1 - 254: Öncelik seviyesi
+											255: Devre dışı
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.2
+                            <Unit> pattern"
+        ::= { kgmTrPatternEntry 2 }
+--1.4.2.1.3 kgm_patternNo
+    kgmPatternNo OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Pattern Tablo ID numarası.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.3
+                            <Unit>  "
+        ::= { kgmTrPatternEntry 3 }
+		
+--1.4.2.1.4 kgm_patternPlanMode
+    kgmPatternPlanMode OBJECT-TYPE
+        SYNTAX              INTEGER {
+                                fixedPlan(0),
+                                halfActuated(1),
+                                fullyActuated(2),
+                                centralAdaptive(3),
+                                flashing(4),
+                                dark(5) 
+                            }
+            ACCESS          read-only
+            STATUS          mandatory
+            DESCRIPTION     "<Definition> 
+                                FixedPlan(0): Multi Plan(sabit sureli), sensorler devre disidir. 
+                                    Faz sureleri haftalik planda belirlenen surelere gore degismektedir.
+                                HalfActuated(1): Kavsagin bazi kollarinda sensor bulunmakta(loop dedektor, yaya butonu vb.) 
+                                    bazi kollarinda ise sensor bulunmayabilmektedir. Sinyal planindaki bazi fazlar istenirse 
+                                    pas gecilebilmektedir.
+                                FullyActuated(2): Kavsagin butun kollarinda sensor bulunmaktadir. Sinyal planindaki butun 
+                                    fazlar acilmakta ve talep olmasi durumunda max sureye kadar calistirilmaktadir.
+                                CentralAdaptive(3): Bu modda plan sureleri merkezi bir program tarafindan uretilmekte ve 
+                                    cihaz tarafindan uygulanmaktadir.
+                                Flashing(4): Flasli calisma(Gece flasi gibi)
+                                Dark(5): Cikislarin kapali oldugu mod(Sadece belli saatlerde isletilen kavsaklarin olmasi durumu)
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.4
+                            <Unit>  "
+        ::= { kgmTrPatternEntry 4 }
+		
+--1.4.2.1.4 kgm_patternExtendedMode
+	kgmPatternExtendedMode OBJECT-TYPE
+		SYNTAX              INTEGER (1…255)
+		ACCESS              read-only
+		STATUS              mandatory
+		DESCRIPTION         "<Definition>
+							Hangi ek çalışma modlarının desteklendiği ayrıntısı için, üretici cihaz manueline basvurulur. 
+							<Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.5
+							<Unit>  "
+		::= { kgmTrPatternEntry 5 }
+		
+--1.4.2.1.6 kgm_patternSequenceNumber
+    kgmPatternSequenceNumber OBJECT-TYPE
+        SYNTAX              INTEGER (1..255) 
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> This object is used to locate information in the sequenceTable to use with this pattern. This value shall not exceed the maxSequences object value.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.6
+                            <Unit>  SEQUENCE"
+        ::= { kgmTrPatternEntry 6 }
+		
+--1.4.2.1.7 kgm_patternSplitNumber
+    kgmPatternSplitNumber OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> 	This object is used to locate information in 
+											the splitTable to use for this pattern. This value shall not 
+											exceed the maxSplits object value.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.7
+                            <Unit> split"
+        ::= { kgmTrPatternEntry 7 }
+		
+--1.4.2.1.8 kgm_patternCoordStatus 
+    kgmPatternCoordStatus OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> 0: Yeşil dalga uygulanmayacaktır.
+										  1 - 254: Uygulanacak Koordinasyon Parametre Numarası 
+										  255: Yeşil dalga ile ilgili bir değişiklik olmayacak. 
+										Mevcut duruma devam edilecektir.  
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.8
+                            <Unit>  "
+        ::= { kgmTrPatternEntry 8 }
+--1.4.2.1.9 kgm_patternOutputSupervision
+    kgmPatternOutputSupervision OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                                Sinyal çıkışları arıza kontrolünü devreye almak veya devre dışı bırakmak 
+								için kullanılır.
+								0: Devre dışı
+								1: Devrede
+								2: Değişiklik yok.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.9
+                            <Unit>  "
+        ::= { kgmTrPatternEntry 9 }
+		
+--1.4.2.1.10 kgm_patternSpecialParameterTableIndex
+    kgmPatternSpecialParameterTableIndex OBJECT-TYPE
+        SYNTAX              INTEGER (0..65535)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Sinyal çıkışları arıza kontrolünü devreye almak veya devre dışı bırakmak 
+										  için kullanılır.
+										  0: Özel Parametre Yok
+										  1 - 254: Özel Parametre Tablo indeksi
+										  255: Özel Parametre Yok
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.2.1.10
+                            <Unit> second"
+        ::= { kgmTrPatternEntry 10 }
+		
+	
+--kgm_maxCoord 
+    kgmMaxCoord OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Maksimum kgm koordinasyon parametre sayisi.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.3"
+        ::= { kgmTrPattern 3 }
+		
+--kgm_CoordTable
+    kgmTrCoordTable	OBJECT-TYPE
+        SYNTAX              SEQUENCE OF kgmTrCoordEntry
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition><TableType> static
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4"
+        ::= { kgmTrPattern 4 }
+		
+--1.4.2.1 kgm_CoordEntry
+    kgmTrCoordEntry OBJECT-TYPE
+        SYNTAX              kgmTrCoordEntry
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1
+                            <Unit> "
+        INDEX {kgmCoordNumber }
+        ::= {  kgmTrCoordTable 1 }
+
+    kgmTrCoordEntry::= SEQUENCE {
+        kgmCoordNumber               				INTEGER,
+        kgmCoordCycleTime               INTEGER,
+        kgmCoordPhaseId01	            INTEGER,
+        kgmCoordOffsetTime01                 	INTEGER,
+        kgmCoordReturnPhaseId01        INTEGER,
+		kgmCoordPhaseId02  				INTEGER,
+        kgmCoordReturnPhaseId02         INTEGER,
+        kgmCoordOffsetTime02                    	INTEGER,  
+    }
+	
+	--kgm_coordNumber
+    kgmCoordNumber OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Koordinasyon tablon indeks numarası.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1.1
+                            <Unit> "
+        ::= { kgmTrCoordEntry 1 }
+		
+		--kgm_patternGreenWaveCycleTime
+    kgmCoordCycleTime OBJECT-TYPE
+        SYNTAX              INTEGER (0..65535)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Yeşil dalga devre süresi(tenth cinsinden)
+								65535 ise değiştirilmez.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1.2
+                            <Unit> "
+        ::= { kgmTrCoordEntry 2 }
+	
+	
+	  kgmCoordPhaseId01 OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Yeşil dalga faz numarası. Yeşil dalga uygulaması belirtilen faz referans alınarak yapılır.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1.3
+                            <Unit> "
+        ::= { kgmTrCoordEntry 3 }
+		
+		kgmCoordOffsetTime01 OBJECT-TYPE
+        SYNTAX              INTEGER (0..65535)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Yeşil dalga ofseti(tenth cinsinden)
+									65535 ise değişiklik istenmiyor. Yeşil dalga ofseti bağıl bir değerdir. Referans devre başlangıç anlarına göre ölçülür. Referans başlangıç zamanı cihazların yeşil dalga algoritmalarına göre değişebilir. 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1.4
+                            <Unit> "
+        ::= { kgmTrCoordEntry 4 }
+		
+		kgmCoordReturnPhaseId01 OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Yeşil dalga dönüş faz numarası. Çift yönlü yeşil dalga uygulamasında karşı yön koordinasyonu için belirtilen faz referans alınarak yapılır. 
+							<Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1.5
+                            <Unit> "
+        ::= { kgmTrCoordEntry 5 }
+		
+		  kgmCoordPhaseId02  OBJECT-TYPE
+        SYNTAX              INTEGER (0..255)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Yeşil dalga faz numarası. Yeşil dalga uygulaması belirtilen faz referans alınarak yapılır
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1.6
+                            <Unit> "
+        ::= { kgmTrCoordEntry 6 }
+		
+		kgmCoordReturnPhaseId02  OBJECT-TYPE
+        SYNTAX              INTEGER (0..65535)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Yeşil dalga dönüş faz numarası. Çift yönlü yeşil dalga uygulamasında karşı yön koordinasyonu için belirtilen faz referans alınarak yapılır. 
+							<Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1.7
+                            <Unit> "
+        ::= { kgmTrCoordEntry 7 }
+		
+		kgmCoordOffsetTime02  OBJECT-TYPE
+        SYNTAX              INTEGER (0..65535)
+        ACCESS              read-write
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>Yeşil dalga ofseti(tenth cinsinden)
+		65535 ise değişiklik istenmiyor. Yeşil dalga ofseti bağıl bir değerdir. Referans devre başlangıç anlarına göre ölçülür. Referans başlangıç zamanı cihazların yeşil dalga algoritmalarına göre değişebilir. 
+							<Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.4.1.8
+                            <Unit> "
+        ::= { kgmTrCoordEntry 8 }
+		
+		
+	
+--1.4.3 kgm_signalPlanUpgrade
+    kgmSignalPlanUpgrade OBJECT-TYPE
+        SYNTAX              INTEGER (0..1)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Sinyal planini devreye alir. 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.4.5"
+    ::= {  kgmTrPattern 5 }
+    
+--1.5 kgm_detector
+--1.5.1 kgm_dedectorModuleStatus
+    kgmDedectorModuleStatus   OBJECT-TYPE
+        SYNTAX              INTEGER (0..65535)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Dedektor modulu durum bilgisi yer alir.
+                                Dedektor modulu grup numarasina gore 16 modul bilgisini icerir.
+                                Bit = 0 ise modul calismiyor.
+                                Bit = 1 ise modul calisiyor.
+                                Bit 15: Module 16
+                                Bit 14: Module 15
+                                Bit 13: Module 14
+                                Bit 12: Module 13
+                                Bit 11: Module 12
+                                Bit 10: Module 11
+                                Bit 9 : Module 10
+                                Bit 8 : Module 9
+                                Bit 7 : Module 8
+                                Bit 6 : Module 7
+                                Bit 5 : Module 6
+                                Bit 4 : Module 5
+                                Bit 3 : Module 4
+                                Bit 2 : Module 3
+                                Bit 1 : Module 2
+                                Bit 0 : Module 1
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.5.1
+                            <Unit>  "
+        ::= { kgmDetector 1 }
+
+--1.6 kgm_user
+--1.6.1 kgm_maxUserOperations
+    kgmMaxUserOperations OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Maksimum kullanici islem sayisina esittir. userOperationsIndex maksimum degerini asamaz
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.6.1"
+        ::= { kgmUser 1 }
+--1.6.2 kgm_userOperationsTable
+    kgmUserOperationsTable OBJECT-TYPE
+        SYNTAX              SEQUENCE OF kgmUserOperationsEntry
+        ACCESS              not-accessible
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Kullanici islemleri bilgilendirme tablosudur
+                            <TableType> static
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.6.2"
+        ::= { kgmUser 2 }
+--1.6.2.1 kgm_userOperationsEntry
+    kgmUserOperationsEntry		OBJECT-TYPE
+        SYNTAX              kgmUserOperationsEntry
+        ACCESS              not-accessible
+        STATUS              mandatory
+    DESCRIPTION             "<Definition> Kullaici islemleri Entry?si   
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.6.2.1
+                            <Unit> " 
+    INDEX                   { kgmUserOperationsIndex }
+    ::= {  kgmUserOperationsTable 1 }
+
+    kgmUserOperationsEntry ::= SEQUENCE {
+        kgmUserOperationsIndex     	INTEGER,
+        kgmUserOperationsType      	INTEGER,
+        kgmUserOperationsTime      	Counter,
+        kgmUserOperationsULoginName 	OCTET STRING
+    }
+--1.6.2.1.1 kgm_userOperationsIndex
+    kgmUserOperationsIndex OBJECT-TYPE
+        SYNTAX              INTEGER (1..255)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Kullanici islem tablo id bilgisi
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.6.2.1.1
+                            <Unit>  "
+        ::= { kgmUserOperationsEntry 1 }
+--1.6.2.1.2 kgm_userOperationsType
+    kgmUserOperationsType OBJECT-TYPE
+        SYNTAX              INTEGER { 
+                                none(0),
+                                userAdded(1),
+                                timeChanged(2),
+                                outputRelaysEnabled(3),
+                                outputRelaysDisabled(4),
+                                userLogin(5),
+                                userLogout(6),
+                                modeChanged(7),
+                                deviceParamatersChanged(8)        
+                            }	
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> 
+                                userAdded: Kullanici eklendi
+                                timeChanged: Kullanici tarih saat degistirdi
+                                outputRelaysEnabled: Cikis rolesi devrede
+                                outputRelaysDisabled: Cikis rolesi devre disi
+                                userLogin: Kullanici sisteme giris yapti
+                                userLogout: Kullanici sistemden cikis yapti
+                                modeChanged: kullanici tarafindan mod degistirildi.
+                                deviceParamatersChanged: cihaz paramatreleri degistirildi.
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.6.2.1.2
+                            <Unit> "
+        ::= { kgmUserOperationsEntry 2} 
+--1.6.2.1.3 kgm_userOperationsTime
+    kgmUserOperationsTime OBJECT-TYPE
+        SYNTAX              Counter (0..4294967295)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Kullanicinin islem yaptigi zamanin bilgisi. 
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.6.2.1.3
+                            <Unit>  "
+        ::= { kgmUserOperationsEntry 3} 
+--1.6.2.1.4 kgm_userOperationsULoginName
+    kgmUserOperationsULoginName OBJECT-TYPE
+        SYNTAX              OCTET STRING
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition> Islem yapan kullanicinin kullanici adi bilgisi.   
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.6.2.1.4
+                            <Unit>  "
+        ::= { kgmUserOperationsEntry 4}
+--1.6.3 kgm_userListFileUpdate
+    kgmUserListFileUpdate OBJECT-TYPE
+        SYNTAX              INTEGER (0..1)
+        ACCESS              read-only
+        STATUS              mandatory
+        DESCRIPTION         "<Definition>  
+                                0 ise kullanici listesi guncellenemedi
+                                1 ise kullanici listesi guncellendi
+                            <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.6.3
+                            <Unit>  "
+    ::= { kgmUser 3}
+END
