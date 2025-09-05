@@ -21,6 +21,9 @@
 -- 02/09/25     Timing plan table added
 -- 				Signal state table modified
 -- 				kgmUnitParameter added
+-- 04/09/25
+--kgmMinWalkPlusPedClear parameter added
+
 
 
 TC-KGM-NTCIP DEFINITIONS ::= BEGIN
@@ -555,7 +558,7 @@ TC-KGM-NTCIP DEFINITIONS ::= BEGIN
         ::= { kgmSignalStateEntry 10 }
 --1.3.2.1.11 kgmSignalStateTransitionFlags
     kgmSignalStateTransitionFlags OBJECT-TYPE
-        SYNTAX                   INTEGER (0..1)
+        SYNTAX                   OCTET STRING
         ACCESS                   read-only
         STATUS                   mandatory
         DESCRIPTION "<Definition>
@@ -1242,5 +1245,15 @@ TC-KGM-NTCIP DEFINITIONS ::= BEGIN
                         <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.8.2
                         <Unit>  "
     ::= { kgmUnitParameter 2 }
+--1.8.3 kgmMinWalkPlusPedClear
+	kgmMinWalkPlusPedClear  OBJECT-TYPE
+    SYNTAX              INTEGER (0-255)
+    ACCESS              read-only
+    STATUS              mandatory
+    DESCRIPTION "<Definition> Minimum walk ve Pedestrian Clearance parametrelerinin toplamının
+							  minimum olabileceği değerdir.
+                        <Object Identifier> 1.3.6.1.4.1.59873.4.2.1.8.3
+                        <Unit>  "
+    ::= { kgmUnitParameter 3 }
 		
 END
