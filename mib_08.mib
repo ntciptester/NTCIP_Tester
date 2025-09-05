@@ -391,7 +391,7 @@ TC-KGM-NTCIP DEFINITIONS ::= BEGIN
         kgmSignalStateTimingPlanNumber      INTEGER,
         kgmSignalStateSplitNumber           INTEGER,
         kgmSignalStateActivePhases          OCTET STRING,
-        kgmSignalStateTransitionFlags	    INTEGER,
+        kgmSignalStateTransitionFlags	    OCTET STRING,
         kgmSignalStateElapsedPhaseTimes     OCTET STRING,
 		kgmTrPatternTimeToSyncPoint         INTEGER
     } 
